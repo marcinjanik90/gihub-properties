@@ -1,16 +1,17 @@
 package pl.mjanik.github.repositories;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import pl.mjanik.github.config.RestTemplateFactory;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -32,12 +33,12 @@ class RepositoriesFetcherImpl implements RepositoriesFetcher {
         try {
             result = restTemplate.exchange(urlForUsername,
                             HttpMethod.GET,
-                            null,
+                            new HttpEntity<>(Strings.EMPTY, restTemplateFactory.getHeaders()),
                             new ParameterizedTypeReference<List<Repository>>() {
                             })
                             .getBody();
         } catch (Exception e) {
-            log.error("getReposByUsername threw exception={}", e);
+            log.error("getReposByUsername threw exception:", e);
             throw new RepositoriesTemplateException(e);
         }
         return result;
